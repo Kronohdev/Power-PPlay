@@ -79,7 +79,7 @@ class Animation(GameImage):
                     self.rodando = False
 
     def draw(self):
-        """Desenha o frame atual considerando a Câmera."""
+        """Desenha o frame atual aplicando transformações e suporte a Câmera."""
         cam = Camera.get_instance()
         
         # Coordenadas virtuais para suporte a Câmera
@@ -92,8 +92,24 @@ class Animation(GameImage):
             self.width, self.height
         )
         
-        # Desenha apenas o pedaço (frame) no buffer virtual
-        Window.get_screen().blit(self.image, (draw_x, draw_y), area_corte)
+        # Extrai o frame da spritesheet
+        frame_surface = self.image.subsurface(area_corte).copy()
+        
+        # Aplica transparência
+        frame_surface.set_alpha(self.transparency)
+        
+        # Aplica rotação
+        if self.rotation != 0:
+            frame_surface = pygame.transform.rotate(frame_surface, self.rotation)
+        
+        # Aplica escala
+        if self.scale_x != 1.0 or self.scale_y != 1.0:
+            nova_w = max(1, int(self.width * self.scale_x))
+            nova_h = max(1, int(self.height * self.scale_y))
+            frame_surface = pygame.transform.scale(frame_surface, (nova_w, nova_h))
+        
+        # Desenha apenas o pedaço (frame) transformado no buffer virtual
+        Window.get_screen().blit(frame_surface, (draw_x, draw_y))
 
     def play(self): self.rodando = True
     def stop(self): self.rodando = False; self.frame_atual = 0

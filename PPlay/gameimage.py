@@ -56,13 +56,27 @@ class GameImage(GameObject):
         self.rect = self.image.get_rect()
 
     def draw(self):
-        """Desenha a imagem na tela na posição atual (x, y)."""
+        """Desenha a imagem na tela aplicando escala, rotação e transparência."""
+        # Aplica transparência
+        imagem_transformada = self.image.copy()
+        imagem_transformada.set_alpha(self.transparency)
+        
+        # Aplica rotação
+        if self.rotation != 0:
+            imagem_transformada = pygame.transform.rotate(imagem_transformada, self.rotation)
+        
+        # Aplica escala
+        if self.scale_x != 1.0 or self.scale_y != 1.0:
+            nova_w = max(1, int(self.width * self.scale_x))
+            nova_h = max(1, int(self.height * self.scale_y))
+            imagem_transformada = pygame.transform.scale(imagem_transformada, (nova_w, nova_h))
+        
         # Atualizamos o rect interno antes de desenhar
         self.rect.x = self.x
         self.rect.y = self.y
         
         # Pega a tela da Window e desenha
-        Window.get_screen().blit(self.image, self.rect)
+        Window.get_screen().blit(imagem_transformada, self.rect)
 
     def draw_collision_box(self, cor=(0, 255, 0)):
         """Método de Debug: Desenha a caixa de colisão do objeto."""

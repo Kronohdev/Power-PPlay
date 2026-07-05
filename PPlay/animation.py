@@ -26,16 +26,22 @@ class Animation(GameImage):
     Gerencia sequências de frames (Spritesheets) com controle de tempo
     baseado em Delta Time e suporte a Câmera.
     """
-    def __init__(self, caminho_imagem, total_frames, loop=True):
+    def __init__(self, caminho_imagem, total_frames, loop=True, *, fileiras = 1):
         super().__init__(caminho_imagem)
         
         self.total_frames = total_frames
         self.loop = loop
         
         # Ajusta a largura para o tamanho de UM frame
-        self.width = self.width / total_frames
+        self.total_colunas = total_frames/fileiras
+        self.total_fileiras = fileiras
+
+        self.width = self.width / self.total_colunas
+        self.height = self.height / self.total_fileiras
         
         self.frame_atual = 0
+        self.coluna_atual = 0
+        self.fileira_atual = 0
         self.rodando = True
         
         # Controle de tempo (em segundos)
@@ -70,12 +76,24 @@ class Animation(GameImage):
         if self.tempo_acumulado >= self.tempo_por_frame:
             self.frame_atual += 1
             self.tempo_acumulado = 0
+            if self.total_colunas != self.total_frames:
+                self.coluna_atual += 1
+                if self.coluna_atual >= self.colunas:
+                    self.coluna_atual = 0
+                    self.fileira_atual += 1
+                    if self.fileira_atual >= self.fileiras:
+                        self.fileira_atual = 0
+
 
             if self.frame_atual >= self.total_frames:
                 if self.loop:
                     self.frame_atual = 0
+                    self.coluna_atual = 0
+                    self.fileira_atual = 0
                 else:
                     self.frame_atual = self.total_frames - 1
+                    self.coluna_atual = self.colunas -1
+                    self.fileira_atual = self.fileiras -1
                     self.rodando = False
 
     def draw(self):

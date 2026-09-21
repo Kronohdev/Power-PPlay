@@ -1,6 +1,6 @@
 """
 ===============================================================================
-POWER PPLAY 2.0 - RETRO-COMPATIBILITY BRIDGE v2.2
+POWER PPLAY 2.1 - RETRO-COMPATIBILITY BRIDGE v2.2
 ===============================================================================
 Correção de Métodos de Classe e Atributos Estáticos.
 Mapeia o comportamento da 1.0 injetando lógica na 2.0.
@@ -10,9 +10,9 @@ import pygame
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -25,7 +25,17 @@ originalmente concebida pela Equipe PPlay:
 ===============================================================================
 """
 
+_ponte_aplicada = False
+
+
 def aplicar_retrocompatibilidade():
+    # Guarda de idempotência: o __init__.py também chama esta função, e sem
+    # isto a ponte era aplicada (e anunciada) duas vezes por execução.
+    global _ponte_aplicada
+    if _ponte_aplicada:
+        return
+    _ponte_aplicada = True
+
     try:
         from .window import Window
         from .mouse import Mouse
@@ -54,15 +64,21 @@ def aplicar_retrocompatibilidade():
     Window.time_elapsed = lambda self: pygame.time.get_ticks()
     Window.clear = lambda self: [self.set_background_color((255,255,255)), self.update()]
 
-    # Draw Text Híbrido (Suporte a color/size/bold/italic da 1.0)
-    def draw_text_compat(self, text, x, y, **kwargs):
-        size = kwargs.get('size', kwargs.get('tamanho', 12))
-        color = kwargs.get('color', kwargs.get('cor', (0,0,0)))
-        font_name = kwargs.get('font_name', kwargs.get('fonte', "Arial"))
+    # Draw Text Híbrido: aceita a assinatura POSICIONAL da 2.0
+    # (texto, x, y, tamanho, cor, fonte) E os nomes da 1.0 (size, color,
+    # font_name, bold, italic). O padrão continua branco, como na 2.0.
+    def draw_text_compat(self, texto, x, y, tamanho=20, cor=(255, 255, 255),
+                         fonte="Arial", **kwargs):
+        size = kwargs.get('size', tamanho)
+        color = kwargs.get('color', cor)
+        font_name = kwargs.get('font_name', fonte)
         bold = kwargs.get('bold', False)
         italic = kwargs.get('italic', False)
-        f = pygame.font.SysFont(font_name, size, bold, italic)
-        self.screen.blit(f.render(str(text), True, color), [x, y])
+        try:
+            f = pygame.font.SysFont(font_name, int(size), bold, italic)
+            self.screen.blit(f.render(str(texto), True, color), [x, y])
+        except Exception:
+            pass
     Window.draw_text = draw_text_compat
 
     # --- 2. INPUTS: TRADUÇÃO DE TECLAS E BOTÕES ---
@@ -87,14 +103,24 @@ def aplicar_retrocompatibilidade():
 
     # --- 3. ANIMAÇÃO E SPRITE ---
     # Traduz o sistema de fatiamento de tempo da 1.0
-    def set_sequence_time_legacy(self, start, end, duration, loop=True):
-        self.set_total_duration(duration)
+    # Na PPlay 1.0 o 'final_frame' é EXCLUSIVO (set_sequence(0, total_frames)
+    # toca a folha inteira), enquanto o intervalo da 2.1 é inclusivo — daí o
+    # 'end - 1'. Antes estes dois métodos recebiam start/end e os descartavam
+    # em silêncio: a animação continuava rodando a folha toda.
+    def set_sequence_legacy(self, start, end, loop=True):
         self.set_loop(loop)
-        self.frame_atual = start
+        self.set_intervalo_frames(start, end - 1)
+        self.frame_atual = self.frame_inicial
+
+    def set_sequence_time_legacy(self, start, end, duration, loop=True):
+        set_sequence_legacy(self, start, end, loop)
+        # Na 1.0 a duração vale para o TRECHO escolhido, não para a folha
+        # inteira; por isso o tempo de cada quadro sai da conta do trecho.
+        quadros = max(1, self.frame_final - self.frame_inicial + 1)
+        self.tempo_por_frame = (duration / 1000.0) / quadros
 
     Animation.set_sequence_time = set_sequence_time_legacy
-    Animation.set_sequence = lambda self, s, e, l=True: self.set_loop(l)
-    Animation.set_curr_frame = lambda self, f: setattr(self, 'frame_atual', f)
+    Animation.set_sequence = set_sequence_legacy
     Animation.hide = lambda self: setattr(self, 'drawable', False)
     Animation.unhide = lambda self: setattr(self, 'drawable', True)
 
@@ -102,7 +128,7 @@ def aplicar_retrocompatibilidade():
     Collision.collided_perfect = lambda obj1, obj2: Collision.perfect_collision(obj1, obj2)
     GameImage.collided_perfect = lambda self, target: Collision.perfect_collision(self, target)
 
-    print("[Power PPlay 2.0] Ponte v2.2 ativa: Métodos de classe vinculados.")
+    print("[Power PPlay 2.1] Ponte v2.4 ativa: Métodos de classe vinculados.")
 
-# Ativação imediata
-aplicar_retrocompatibilidade()
+# A ativação é feita pelo PPlay/__init__.py. Não chame aqui: ao importar este
+# módulo diretamente a ponte rodaria duas vezes.

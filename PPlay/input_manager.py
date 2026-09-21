@@ -2,9 +2,9 @@ import pygame
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -25,8 +25,31 @@ class InputManager:
 
     @classmethod
     def define_action(cls, nome_acao, lista_teclas):
-        """Mapeia um nome (ex: 'pulo') a várias teclas (ex: ['SPACE', 'UP', 'W'])."""
-        cls._mapa_acoes[nome_acao] = lista_teclas
+        """
+        Mapeia um nome (ex.: 'pulo') a uma ou varias teclas.
+
+            InputManager.define_action("pulo", ["space", "up", "w"])
+            InputManager.define_action("pausa", "escape")
+
+        Uma tecla sozinha, em vez de uma lista, e aceita de proposito: escrever
+        `define_action("pausa", "escape")` e o erro mais natural do mundo, e
+        antes ele passava calado — a string virava uma lista de letras, e a
+        acao nunca disparava porque ninguem aperta a tecla "e" esperando pausar
+        o jogo.
+        """
+        if isinstance(lista_teclas, str):
+            lista_teclas = [lista_teclas]
+        cls._mapa_acoes[nome_acao] = list(lista_teclas)
+
+    @classmethod
+    def acoes(cls):
+        """O mapa de acoes, como esta agora."""
+        return {nome: list(teclas) for nome, teclas in cls._mapa_acoes.items()}
+
+    @classmethod
+    def limpar(cls):
+        """Esquece todas as acoes."""
+        cls._mapa_acoes = {}
 
     @classmethod
     def is_active(cls, nome_acao):

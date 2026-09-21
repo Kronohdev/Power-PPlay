@@ -3,9 +3,9 @@ from .window import Window
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026

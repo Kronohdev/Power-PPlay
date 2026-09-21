@@ -4,9 +4,9 @@ from .gameobject import GameObject
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -102,8 +102,12 @@ class ProgressBar(GameObject):
         # Desenha o fundo
         pygame.draw.rect(screen, self.cor_fundo, (self.x, self.y, self.width, self.height))
         
-        # Calcula a largura da barra preenchida
-        largura_preenchida = (self.valor_atual / self.valor_max) * self.width
+        # Calcula a largura da barra preenchida.
+        # valor_max zerado (barra ainda não configurada, ou inimigo sem vida
+        # máxima definida) dividia por zero e derrubava o jogo inteiro no
+        # meio do desenho — a ui.ProgressBar já se protegia assim.
+        fracao = (self.valor_atual / self.valor_max) if self.valor_max else 0
+        largura_preenchida = fracao * self.width
         
         # Desenha o preenchimento
         if largura_preenchida > 0:

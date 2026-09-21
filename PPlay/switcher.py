@@ -2,7 +2,7 @@
 ===============================================================================
 PPLAY VERSION SWITCHER (TIME MACHINE)
 ===============================================================================
-Alterna entre a Power PPlay 2.0 (NEOP) e a PPlay 1.0 Original (LEGACY).
+Alterna entre a Power PPlay 2.1 (NEOP) e a PPlay 1.0 Original (LEGACY).
 Uso no terminal: python PPlay/switcher.py
 ===============================================================================
 """
@@ -13,9 +13,9 @@ import sys
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -74,7 +74,7 @@ class VersionManager:
         current_version = self.get_active_version()
 
         if current_version == "NEOP":
-            print("[!] Versão Ativa Detectada: POWER PPLAY 2.0 (NEOP)")
+            print("[!] Versão Ativa Detectada: POWER PPLAY 2.1 (NEOP)")
             
             if not self.check_folder_has_files(self.legacy_dir):
                 print("\n[ERRO] A pasta 'PPlay/legacy/' está vazia!")
@@ -82,7 +82,7 @@ class VersionManager:
                 print("="*50 + "\n")
                 return
 
-            print("-> Guardando PPlay 2.0 na pasta '/neop/'.")
+            print("-> Guardando a engine nova na pasta '/neop/'.")
             self.move_files(self.base_dir, self.neop_dir)
             
             print("-> Restaurando PPlay 1.0 da pasta '/legacy/'.")
@@ -102,7 +102,7 @@ class VersionManager:
             print("-> Guardando PPlay 1.0 na pasta '/legacy/'.")
             self.move_files(self.base_dir, self.legacy_dir)
             
-            print("-> Restaurando Power PPlay 2.0 da pasta '/neop/'.")
+            print("-> Restaurando a engine nova da pasta '/neop/'.")
             self.move_files(self.neop_dir, self.base_dir)
             
             print("\n[SUCESSO] A engine foi atualizada para a versão NEOP (2.0).")

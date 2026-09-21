@@ -4,9 +4,9 @@ from .point import Point
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -57,6 +57,36 @@ class Collision:
         return distancia < (raio1 + raio2)
 
     @staticmethod
+    def _superficie_do_quadro(obj):
+        """
+        A parte da imagem que o objeto realmente mostra.
+
+        Para um GameImage é a imagem toda; para um Sprite/Animation é o recorte
+        do quadro atual dentro da spritesheet — é o que o jogador está vendo e,
+        portanto, o que deve colidir.
+        """
+        imagem = obj.image
+        colunas = getattr(obj, "colunas", 1)
+        linhas = getattr(obj, "linhas", 1)
+        if colunas <= 1 and linhas <= 1:
+            return imagem
+
+        quadro = getattr(obj, "frame_atual", 0)
+        largura = imagem.get_width() // colunas
+        altura = imagem.get_height() // linhas
+        if largura <= 0 or altura <= 0:
+            return imagem
+
+        col = quadro % colunas
+        lin = min(linhas - 1, quadro // colunas)
+        try:
+            return imagem.subsurface((col * largura, lin * altura, largura, altura))
+        except ValueError:
+            # Recorte fora da folha (total_frames maior do que a imagem
+            # comporta): melhor cair na folha inteira do que derrubar o jogo.
+            return imagem
+
+    @staticmethod
     def perfect_collision(obj1, obj2):
         """
         Colisão por Máscara (Pixel Perfect). 
@@ -68,9 +98,12 @@ class Collision:
         if not Collision.collided(obj1, obj2):
             return False
 
-        # Gera máscaras de bits a partir das imagens (o Pygame faz o cache interno)
-        mask1 = pygame.mask.from_surface(obj1.image)
-        mask2 = pygame.mask.from_surface(obj2.image)
+        # Gera máscaras de bits a partir do QUADRO que está na tela.
+        # Antes usávamos obj.image direto, que numa spritesheet é a folha
+        # inteira: dois Sprites podiam "colidir" por causa de um desenho que
+        # nem estava sendo exibido, e a docstring acima promete Sprites.
+        mask1 = pygame.mask.from_surface(Collision._superficie_do_quadro(obj1))
+        mask2 = pygame.mask.from_surface(Collision._superficie_do_quadro(obj2))
 
         # Calcula a diferença de posição entre eles
         offset_x = int(obj2.x - obj1.x)
@@ -88,11 +121,14 @@ class Collision:
         """
         # Quantidade de passos para verificar o raio (precisão)
         distancia = math.hypot(destino_x - origem_x, destino_y - origem_y)
-        passos = int(distancia / 4) # Verifica a cada 4 pixels
-        
-        if passos == 0: return None
+        # max(1, ...) porque um raio com menos de 4 pixels dava zero passos e
+        # voltava None mesmo com a origem dentro de um sólido.
+        passos = max(1, int(distancia / 4)) # Verifica a cada 4 pixels
 
-        for i in range(passos):
+        # range(passos + 1) para que o PONTO DE DESTINO também seja testado:
+        # antes o laço parava um passo antes do fim, e um sensor apontado
+        # exatamente para a borda de um bloco não via nada.
+        for i in range(passos + 1):
             t = i / passos
             px = origem_x + (destino_x - origem_x) * t
             py = origem_y + (destino_y - origem_y) * t
@@ -105,7 +141,8 @@ class Collision:
         return None
     
     
-    def draw_debug_circle(self, obj, cor=(255, 0, 0)):
+    @staticmethod
+    def draw_debug_circle(obj, cor=(255, 0, 0)):
         """Desenha o círculo de colisão para fins de debug."""
         from .window import Window
         raio = int(obj.width / 2)

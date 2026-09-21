@@ -5,9 +5,9 @@ from .camera import Camera
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -96,9 +96,19 @@ class ParticleEmitter:
         cam = Camera.get_instance()
         
         for p in self.particulas:
-            # Transparência baseada na vida restante (Fade out)
-            alpha = int((p.vida_restante / p.vida_max) * 255)
-            cor_com_alpha = (*p.cor, alpha)
+            # Transparência baseada na vida restante (Fade out).
+            # vida_max zerado (emissor com vida_base = 0) dividia por zero no
+            # meio do desenho; sem vida, a partícula já entra apagada.
+            if p.vida_max > 0:
+                alpha = int((p.vida_restante / p.vida_max) * 255)
+            else:
+                alpha = 0
+            alpha = max(0, min(255, alpha))
+
+            # Só os três primeiros canais: quem define emissor.cor com alpha
+            # — (255, 0, 0, 128) — montava uma tupla de CINCO valores aqui e
+            # o pygame recusava a cor.
+            cor_com_alpha = (*tuple(p.cor)[:3], alpha)
             
             # Posição relativa à câmera
             dx = cam.transform_x(p.x) if cam else p.x

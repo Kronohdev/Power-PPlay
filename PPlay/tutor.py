@@ -1,6 +1,6 @@
 """
 ===============================================================================
-POWER PPLAY 2.0 - TUTOR INTERATIVO OMNI-MASTER
+POWER PPLAY 2.1 - TUTOR INTERATIVO OMNI-MASTER
 ===============================================================================
 Desenvolvido por: Kauã Neves Jesus de Paula
 Arquitetura: Desenvolvedor Sênior (IA)
@@ -27,7 +27,7 @@ def limpar():
 
 MENU_PRINCIPAL = f"""
 {C}{B}╔══════════════════════════════════════════════════════════╗
-║        BEM-VINDO AO MENTOR VIRTUAL - POWER PPLAY 2.0       ║
+║        BEM-VINDO AO MENTOR VIRTUAL - POWER PPLAY 2.1       ║
 ╚══════════════════════════════════════════════════════════╝{W}
 {G}Selecione um módulo para aprender a implementar:{W}
 
@@ -65,7 +65,7 @@ Isso garante que o jogo rode na mesma velocidade em qualquer PC!
     "2": {
         "titulo": "ENTRADAS (INPUTS)",
         "corpo": f"""
-A Power PPlay 2.0 separa o hardware da sua intenção.
+A Power PPlay 2.1 separa o hardware da sua intenção.
 
 {Y}# Teclado Dinâmico:{W}
 if janela.keyboard.key_pressed("SPACE"): # Ativo enquanto segura
@@ -74,7 +74,7 @@ if janela.keyboard.key_down("ENTER"):    # Ativo apenas no clique
 {Y}# Action Mapping (Mapeamento Profissional):{W}
 InputManager.define_action("pulo", ["SPACE", "W", "UP"])
 if InputManager.action_pressed("pulo"):
-    player.jump()
+    player.solicitar_pulo()
 
 {G}💡 DICA DO SÊNIOR:{W}
 Use 'action_pressed' para ações únicas (atirar, pular) e 
@@ -156,7 +156,7 @@ atingido = inimigos.collided(player) # Retorna quem foi atingido
 O que torna o jogo 'gostoso' de jogar.
 
 {Y}# Screen Shake (Tremor):{W}
-ScreenEffects.shake(intensidade=10, tempo=0.3)
+ScreenEffects.shake(intensidade=10, duracao=0.3)
 
 {Y}# Lighting (Iluminação):{W}
 luzes = LightingSystem()
@@ -207,7 +207,7 @@ def rodar_tutor():
         escolha = input(f"{Y}Escolha um tópico (0 para sair): {W}")
         
         if escolha == "0":
-            print(f"\n{G}Power PPlay 2.0 - Boa sorte no seu desenvolvimento, Líder!{W}\n")
+            print(f"\n{G}Power PPlay 2.1 - Boa sorte no seu desenvolvimento, Líder!{W}\n")
             break
             
         if escolha in CONTEUDO:

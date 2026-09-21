@@ -4,9 +4,9 @@ import sys
 
 """
 ===============================================================================
-POWER PPLAY 2.0 - Framework de Alta Performance para Desenvolvimento de Jogos
+POWER PPLAY 2.1 - Framework de Alta Performance para Desenvolvimento de Jogos
 ===============================================================================
-Desenvolvedor Líder e Arquiteto da Versão 2.0: 
+Desenvolvedor Líder e Arquiteto das Versões 2.0 e 2.1: 
     Kauã Neves Jesus de Paula
 
 Ano de Lançamento: 2026
@@ -22,7 +22,7 @@ originalmente concebida pela Equipe PPlay:
 
 class ProjectArchitect:
     """
-    Ferramenta de Automação de Estrutura da PPlay 2.0.
+    Ferramenta de Automação de Estrutura da PPlay 2.1.
     Localizada em: projeto/PPlay/architect.py
     Executada de: projeto/
     """
@@ -78,7 +78,7 @@ class ProjectArchitect:
         # Cabeçalho padrão para garantir que os componentes da PPlay funcionem
         # Nota: Usamos "from PPlay.window" assumindo que a PPlay está na raiz
         headers = (
-            f"# Arquivo gerado automaticamente pelo PPlay 2.0 Architect\n"
+            f"# Arquivo gerado automaticamente pelo PPlay 2.1 Architect\n"
             f"from PPlay.window import Window\n"
             f"from PPlay.sprite import Sprite\n"
             f"from PPlay.gameimage import GameImage\n\n"
@@ -100,14 +100,14 @@ class ProjectArchitect:
         with open(caminho_origem, "w", encoding="utf-8") as f:
             f.write("\n".join(linhas_restantes))
 
-        print(f"\n[PPlay 2.0 Architect]")
+        print(f"\n[PPlay 2.1 Architect]")
         print(f"-> Entidade '{nome_entidade}' movida com sucesso!")
         print(f"-> Destino: {pasta_destino}/{nome_arquivo_novo}")
         print(f"-> Arquivo '{arquivo_origem}' atualizado com o novo import.\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("\n[PPlay 2.0 Architect] - Uso Incorreto")
+        print("\n[PPlay 2.1 Architect] - Uso Incorreto")
         print("Exemplo: python PPlay/architect.py main.py NomeDaClasse nome_da_pasta")
     else:
         # Argumentos: 1: arquivo_origem, 2: classe, 3: pasta
